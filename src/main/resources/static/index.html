@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/stomp.js/2.3.3/stomp.js"></script>
+
+</head>
+<body>
+<input id="name" name="name" type="text" />
+<button type="button" onclick="sendName()">Send</button>
+<div>Here:</div>
+<table id="greetings"></table>
+<script>
+    $(function () {
+        connect();
+    });
+
+    var stompClient = null;
+    function connect() {
+        stompClient = Stomp.client('ws://localhost:8080/ws');
+        stompClient.connect({}, function (frame) {
+            stompClient.subscribe('/topic/greetings', function (response) {
+                showGreeting(JSON.parse(response.body).text);
+            });
+        });
+    }
+    function sendName() {
+        stompClient.send("/app/hello", {}, JSON.stringify({'name': $("#name").val()}));
+    }
+    function showGreeting(message) {
+
+        $("#greetings").append("<tr><td>" + message + "</td></tr>");
+    }
+</script>
+
+</body>
+</html>
